@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-// import { authClient } from "@/lib/auth-client"; // Un-comment when your client instance is live
+import { authClient } from "@/lib/auth-client"; // Un-comment when your client instance is live
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -12,8 +12,13 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "user", // Default selection mapping: 'user' (Buyer) or 'artist'
+    role: "user", // 'user' (Buyer) or 'artist'
   });
+  
+  // Visibility states for password inputs
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +34,6 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
-    // Frontend validation logic
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -43,23 +47,19 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      // Better-Auth standard email sign-up registration
-      // Pass your custom fields like 'role' inside the options object
-      // const { data, error: authError } = await authClient.signUp.email({
-      //   email: formData.email,
-      //   password: formData.password,
-      //   name: formData.name,
-      //   data: {
-      //     role: formData.role // Better-Auth maps extra metadata fields to MongoDB seamlessly
-      //   }
-      // });
+     
+      const { data, error: authError } = await authClient.signUp.email({
+       email: formData.email,
+       password: formData.password,
+         name: formData.name,
+         data: { role: formData.role }
+      });
       
-      // if (authError) {
-      //   setError(authError.message || "Registration failed. Email may already be in use.");
-      //   return;
-      // }
+       if (authError) {
+         setError(authError.message || "Registration failed. Email may already be in use.");
+         return;
+       }
 
-      // Better-Auth manages your persistent user sessions and browser tokens automatically
       console.log("Registered successfully with Better-Auth!", formData);
       router.push("/");
       router.refresh();
@@ -70,9 +70,24 @@ export default function RegisterPage() {
     }
   };
 
+  // Shared Eye/Eye-Slash Icon Component for cleaner code
+  const EyeIcon = ({ visible }) => (
+    visible ? (
+      /* Eye Open Icon */
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      </svg>
+    ) : (
+      /* Eye Closed (Slash) Icon */
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.025 10.025 0 014.132-5.4m3.045-1.908A10.05 10.05 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.4M9.9 9.9l4.2 4.2m0-4.2l-4.2 4.2" />
+      </svg>
+    )
+  );
+
   return (
     <main className="w-full min-h-[90vh] bg-[#0b0f1a] text-white flex items-center justify-center px-4 py-12 relative overflow-hidden">
-      {/* Background Glow Orbs */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-purple-600/5 blur-[130px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-md bg-[#111625] border border-white/5 rounded-2xl p-8 shadow-2xl relative z-10 backdrop-blur-sm">
@@ -100,7 +115,6 @@ export default function RegisterPage() {
           </div>
         )}
 
-        {/* Form Element */}
         <form onSubmit={handleSubmit} className="space-y-4">
           
           {/* Custom Role Selector Toggle Cards */}
@@ -168,38 +182,58 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Password Input */}
+          {/* Password Input (With Toggle) */}
           <div>
             <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              className="w-full px-4 py-2.5 text-sm bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-purple-500 transition-colors"
-            />
+            <div className="relative w-full">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full pr-12 pl-4 py-2.5 text-sm bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-purple-500 transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-400 transition-colors p-1"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                <EyeIcon visible={showPassword} />
+              </button>
+            </div>
           </div>
 
-          {/* Confirm Password Input */}
+          {/* Confirm Password Input (With Toggle) */}
           <div>
             <label htmlFor="confirmPassword" className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
               Confirm Password
             </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              name="confirmPassword"
-              required
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-              className="w-full px-4 py-2.5 text-sm bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-purple-500 transition-colors"
-            />
+            <div className="relative w-full">
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full pr-12 pl-4 py-2.5 text-sm bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-purple-500 transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-400 transition-colors p-1"
+                aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+              >
+                <EyeIcon visible={showConfirmPassword} />
+              </button>
+            </div>
           </div>
 
           {/* Submit Button */}
@@ -223,10 +257,7 @@ export default function RegisterPage() {
         {/* OAuth Google Registration Option Button */}
         <button
           type="button"
-          onClick={() => {
-            // authClient.signIn.social({ provider: "google" })
-            console.log("Triggering OAuth with Better-Auth for Google Registration...");
-          }}
+          onClick={() => console.log("Triggering OAuth Google Registration...")}
           className="w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
