@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // 🔥 Added useEffect here
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Script from "next/script"; // 🔥 Added Next.js Script to load Google SDK
 import { authClient } from "@/lib/auth-client"; // 🔥 Imported to manage cookie/local storage token mapping
 
 export default function RegisterPage() {
@@ -23,6 +24,56 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const BACKEND_URL = "http://localhost:5000";
+  const GOOGLE_CLIENT_ID = "1008811192795-b75hk9kdaipvgglsknmebu50jlofsslt.apps.googleusercontent.com";
+
+  // 🔥 Callback function for when a user selects their Google account
+  const handleGoogleCallback = async (response) => {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Google registration failed.");
+        return;
+      }
+
+      console.log("Google Account authentication completely successful!");
+      authClient.setToken(data.token);
+
+      if (data.user.role?.toLowerCase() === "artist") {
+        router.push("/artist/dashboard");
+      } else {
+        router.push("/");
+      }
+      router.refresh();
+    } catch (err) {
+      setError("Unable to connect to the authentication server via Google.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔥 Initialize the Google Identity element on mounted load states
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.google) {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCallback,
+      });
+
+      window.google.accounts.id.renderButton(
+        document.getElementById("google-signup-btn"),
+        { theme: "filled_dark", size: "large", width: "382", text: "signup_with" }
+      );
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -115,6 +166,24 @@ export default function RegisterPage() {
 
   return (
     <main className="w-full min-h-[90vh] bg-[#0b0f1a] text-white flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* 🔥 Async Script mounting loader block for Google Infrastructure API */}
+      <Script 
+        src="https://accounts.google.com/gsi/client" 
+        strategy="afterInteractive"
+        onLoad={() => {
+          if (window.google) {
+            window.google.accounts.id.initialize({
+              client_id: GOOGLE_CLIENT_ID,
+              callback: handleGoogleCallback,
+            });
+            window.google.accounts.id.renderButton(
+              document.getElementById("google-signup-btn"),
+              { theme: "filled_dark", size: "large", width: "382", text: "signup_with" }
+            );
+          }
+        }}
+      />
+
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-purple-600/5 blur-[130px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-md bg-[#111625] border border-white/5 rounded-2xl p-8 shadow-2xl relative z-10 backdrop-blur-sm">
@@ -132,7 +201,6 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Error Alert Display */}
         {error && (
           <div className="mb-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium flex items-center gap-2">
             <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -281,20 +349,10 @@ export default function RegisterPage() {
           </span>
         </div>
 
-        {/* OAuth Google Registration Option Button */}
-        <button
-          type="button"
-          onClick={() => console.log("Google OAuth configuration shifted to separate backend setup layer.")}
-          className="w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-          </svg>
-          Sign up with Google
-        </button>
+        {/* 🔥 Mount target container for the Google secure client iframe */}
+        <div className="flex justify-center w-full">
+          <div id="google-signup-btn" className="w-full transition-all duration-300"></div>
+        </div>
 
         {/* Back Link Toggle */}
         <p className="text-center text-xs text-gray-400 mt-5">
