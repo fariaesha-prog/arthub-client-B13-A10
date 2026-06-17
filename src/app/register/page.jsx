@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client"; // Un-comment when your client instance is live
+import { authClient } from "@/lib/auth-client"; // 🔥 Imported to manage cookie/local storage token mapping
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -21,6 +21,8 @@ export default function RegisterPage() {
   
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const BACKEND_URL = "http://localhost:5000";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -47,24 +49,49 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-     
-      const { data, error: authError } = await authClient.signUp.email({
-       email: formData.email,
-       password: formData.password,
-         name: formData.name,
-         data: { role: formData.role }
+      // Hit your standalone Express backend endpoint directly
+      const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+        }),
       });
-      
-       if (authError) {
-         setError(authError.message || "Registration failed. Email may already be in use.");
-         return;
-       }
 
-      console.log("Registered successfully with Better-Auth!", formData);
-      router.push("/");
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Registration failed. Please try again.");
+        return;
+      }
+
+      console.log("Registered successfully and logging user in instantly!");
+      
+      // 🔥 1. Capture and save the token automatically so they don't have to sign in manually
+      authClient.setToken(data.token);
+
+      // 🔥 2. Perform role-based routing layout drops seamlessly
+      switch (data.user.role?.toLowerCase()) {
+        case "admin":
+          router.push("/admin/dashboard");
+          break;
+        case "artist":
+          router.push("/artist/dashboard");
+          break;
+        case "user":
+        default:
+          router.push("/"); // Direct normal collector home instantly
+          break;
+      }
+      
       router.refresh();
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      setError("Unable to connect to the authentication server.");
     } finally {
       setLoading(false);
     }
@@ -257,7 +284,7 @@ export default function RegisterPage() {
         {/* OAuth Google Registration Option Button */}
         <button
           type="button"
-          onClick={() => console.log("Triggering OAuth Google Registration...")}
+          onClick={() => console.log("Google OAuth configuration shifted to separate backend setup layer.")}
           className="w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">

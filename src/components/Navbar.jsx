@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-// Import both the reactive state hook AND the real signOut method from your single instance
-import { useSession, signOut } from "@/lib/auth-client"; 
+import { authClient } from "@/lib/auth-client"; 
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -13,18 +12,50 @@ export default function Navbar() {
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  const { data: session } = useSession();
-  const user = session?.user;
-  const userRole = user?.role; 
-  const isLoggedIn = !!session;
+  // Track the logged-in states manually using basic React state
+  const [user, setUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Browse Artworks", href: "/browse" },
-    { name: "Artists", href: "/artists" },
-    { name: "Categories", href: "/categories" },
-    { name: "Pricing", href: "/pricing" },
-  ];
+  const BACKEND_URL = "http://localhost:5000";
+  const userRole = user?.role; 
+
+  // Fires dynamically on initial render and during layout route updates
+  useEffect(() => {
+    const fetchUserSession = async () => {
+      const token = authClient.getToken();
+      
+      // If there's no custom token saved, don't ping the backend
+      if (!token) {
+        setIsLoggedIn(false);
+        setUser(null);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+          setIsLoggedIn(true);
+        } else {
+          // Token is invalid or expired, clear it out safely
+          authClient.clearToken();
+          setIsLoggedIn(false);
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("Failed to verify authentication server session:", err);
+      }
+    };
+
+    fetchUserSession();
+  }, [pathname]); // Keeps the sync fresh across route changes
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -34,20 +65,28 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  const handleSignOut = async () => {
-    try {
-      // Execute the correctly destructured signOut method directly
-      await signOut();
-      
-      setMobileOpen(false);
-      setDashboardOpen(false);
-      
-      router.push("/");
-      router.refresh();
-    } catch (err) {
-      console.error("Error signing out:", err);
-    }
+  const handleSignOut = () => {
+    // Wipe client storage strings entirely
+    authClient.clearToken();
+    
+    // Reset layout configuration parameters
+    setIsLoggedIn(false);
+    setUser(null);
+    setMobileOpen(false);
+    setDashboardOpen(false);
+    
+    // Send user back to home base
+    router.push("/");
+    router.refresh();
   };
+
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "Browse Artworks", href: "/browse" },
+    { name: "Artists", href: "/artists" },
+    { name: "Categories", href: "/categories" },
+    { name: "Pricing", href: "/pricing" },
+  ];
 
   return (
     <nav className="w-full bg-[#0b0f1a] border-b border-white/10 text-white sticky top-0 z-50 backdrop-blur-md bg-opacity-95">
@@ -75,7 +114,7 @@ export default function Navbar() {
             </li>
           ))}
 
-          {/* Conditional Dashboard Dropdown (Only for valid logged-in roles) */}
+          {/* Conditional Dashboard Dropdown */}
           {isLoggedIn && userRole && (
             <li className="relative">
               <button
@@ -87,7 +126,6 @@ export default function Navbar() {
 
               {dashboardOpen && (
                 <>
-                  {/* Backdrop closer overlay */}
                   <div className="fixed inset-0 z-10" onClick={() => setDashboardOpen(false)} />
                   
                   <div className="absolute top-8 left-0 bg-[#111625] border border-white/10 rounded-xl w-48 shadow-2xl py-1.5 z-20 backdrop-blur-sm">
@@ -248,7 +286,7 @@ export default function Navbar() {
                 <Link
                   href="/register"
                   onClick={() => setMobileOpen(false)}
-                  className="flex-1 text-center py-2.5 bg-linear-to-r from-purple-600 to-indigo-600 text-sm font-semibold text-white rounded-xl shadow-lg"
+                  className="flex-1 text-center py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-semibold text-white rounded-xl shadow-lg"
                 >
                   Get Started
                 </Link>
