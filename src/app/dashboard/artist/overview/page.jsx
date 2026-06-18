@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, Input, Button, Select, ListBox } from "@heroui/react";
+import { Card, Input, Button, Select, ListBox, Form } from "@heroui/react"; // 👈 Added Form here
 
 // --- MOCK DATA ---
 const STATS_DATA = [
@@ -55,6 +55,11 @@ export default function ArtistDashboard() {
   const [file, setFile] = useState(null);
 
   const maxRevenue = Math.max(...REVENUE_DATA.map((d) => d.amount), 1);
+
+  const handleQuickUpload = (e) => {
+    e.preventDefault();
+    console.log("Submitting:", { title, price, category, file });
+  };
 
   return (
     <div className="space-y-8 p-1">
@@ -132,88 +137,92 @@ export default function ArtistDashboard() {
           </Card>
         </div>
 
-        {/* Right Side: Quick Upload Form */}
+        {/* Right Side: Quick Upload Form Container */}
         <div>
           <Card className="bg-[#111625]/40 border border-white/5 p-6 rounded-2xl h-full flex flex-col justify-between">
-            <div className="space-y-4">
-              <h3 className="text-base font-semibold text-white tracking-tight">Quick Upload</h3>
-              
-              {/* Drag & Drop Upload Block */}
-              <label className="border border-dashed border-white/10 hover:border-[#9353f7]/50 bg-white/[0.01] rounded-xl p-6 flex flex-col items-center justify-center gap-1 text-center cursor-pointer transition-colors group">
-                <input 
-                  type="file" 
-                  className="hidden" 
-                  accept="image/*" 
-                  onChange={(e) => setFile(e.target.files[0])}
-                />
-                <p className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
-                  {file ? file.name : "Drop artwork file here"}
-                </p>
-                <p className="text-[10px] text-gray-500">PNG, JPG, SVG · Max 50MB</p>
-              </label>
+            {/* 👈 Wrapped inner inputs with HeroUI Form to handle child classNames parameters securely */}
+            <Form onSubmit={handleQuickUpload} className="space-y-4 w-full flex flex-col justify-between h-full">
+              <div className="space-y-4 w-full">
+                <h3 className="text-base font-semibold text-white tracking-tight">Quick Upload</h3>
+                
+                {/* Drag & Drop Upload Block */}
+                <label className="border border-dashed border-white/10 hover:border-[#9353f7]/50 bg-white/[0.01] rounded-xl p-6 flex flex-col items-center justify-center gap-1 text-center cursor-pointer transition-colors group w-full">
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={(e) => setFile(e.target.files[0])}
+                  />
+                  <p className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
+                    {file ? file.name : "Drop artwork file here"}
+                  </p>
+                  <p className="text-[10px] text-gray-500">PNG, JPG, SVG · Max 50MB</p>
+                </label>
 
-              {/* Title Field Input - Fixed to native onChange */}
-              <div className="space-y-1.5 text-left">
-                <label className="text-xs font-medium text-gray-400">Title</label>
-                <Input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Neon Reverie No. 4"
-                  classNames={{
-                    input: "text-xs placeholder-gray-600 text-white",
-                    inputWrapper: "bg-white/[0.02] border border-white/5 rounded-xl h-10 focus-within:!border-[#9353f7]/50 data-[hover=true]:border-white/10",
-                  }}
-                />
+                {/* Title Field Input */}
+                <div className="space-y-1.5 text-left w-full">
+                  <label className="text-xs font-medium text-gray-400">Title</label>
+                  <Input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. Neon Reverie No. 4"
+                    classNames={{
+                      input: "text-xs placeholder-gray-600 text-white",
+                      inputWrapper: "bg-white/[0.02] border border-white/5 rounded-xl h-10 focus-within:!border-[#9353f7]/50 data-[hover=true]:border-white/10",
+                    }}
+                  />
+                </div>
+
+                {/* Price Field Input */}
+                <div className="space-y-1.5 text-left w-full">
+                  <label className="text-xs font-medium text-gray-400">Price (USD)</label>
+                  <Input
+                    type="text"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="$0.00"
+                    classNames={{
+                      input: "text-xs placeholder-gray-600 text-white",
+                      inputWrapper: "bg-white/[0.02] border border-white/5 rounded-xl h-10 focus-within:!border-[#9353f7]/50 data-[hover=true]:border-white/10",
+                    }}
+                  />
+                </div>
+
+                {/* Category Select Input */}
+                <div className="space-y-1.5 text-left w-full">
+                  <label className="text-xs font-medium text-gray-400">Category</label>
+                  <Select
+                    placeholder={category || "Select a category"}
+                    className="w-full"
+                  >
+                    <Select.Trigger className="bg-white/[0.02] border border-white/5 rounded-xl h-10 px-3 text-xs text-white flex items-center justify-between w-full hover:bg-white/[0.04]">
+                      <Select.Value className="text-xs text-white" />
+                    </Select.Trigger>
+                    <Select.Popover className="bg-[#111625] border border-white/10 text-white rounded-xl shadow-xl">
+                      <ListBox 
+                        selectedKeys={new Set([category])}
+                        onSelectionChange={(keys) => setCategory(Array.from(keys)[0])}
+                        selectionMode="single"
+                      >
+                        <ListBox.Item id="Digital Art" textValue="Digital Art" className="text-xs text-gray-300 px-3 py-2 cursor-pointer hover:bg-white/5 hover:text-white rounded-lg transition-colors">Digital Art</ListBox.Item>
+                        <ListBox.Item id="Oil Painting" textValue="Oil Painting" className="text-xs text-gray-300 px-3 py-2 cursor-pointer hover:bg-white/5 hover:text-white rounded-lg transition-colors">Oil Painting</ListBox.Item>
+                        <ListBox.Item id="Abstract" textValue="Abstract" className="text-xs text-gray-300 px-3 py-2 cursor-pointer hover:bg-white/5 hover:text-white rounded-lg transition-colors">Abstract</ListBox.Item>
+                        <ListBox.Item id="Sculpture" textValue="Sculpture" className="text-xs text-gray-300 px-3 py-2 cursor-pointer hover:bg-white/5 hover:text-white rounded-lg transition-colors">Sculpture</ListBox.Item>
+                      </ListBox>
+                    </Select.Popover>
+                  </Select>
+                </div>
               </div>
 
-              {/* Price Field Input - Fixed to native onChange */}
-              <div className="space-y-1.5 text-left">
-                <label className="text-xs font-medium text-gray-400">Price (USD)</label>
-                <Input
-                  type="text"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="$0.00"
-                  classNames={{
-                    input: "text-xs placeholder-gray-600 text-white",
-                    inputWrapper: "bg-white/[0.02] border border-white/5 rounded-xl h-10 focus-within:!border-[#9353f7]/50 data-[hover=true]:border-white/10",
-                  }}
-                />
-              </div>
-
-              {/* Category Select Input - Fixed to official HeroUI v3 layout */}
-              <div className="space-y-1.5 text-left">
-                <label className="text-xs font-medium text-gray-400">Category</label>
-                <Select
-                  placeholder={category || "Select a category"}
-                  className="w-full"
-                >
-                  <Select.Trigger className="bg-white/[0.02] border border-white/5 rounded-xl h-10 px-3 text-xs text-white flex items-center justify-between w-full hover:bg-white/[0.04]">
-                    <Select.Value className="text-xs text-white" />
-                  </Select.Trigger>
-                  <Select.Popover className="bg-[#111625] border border-white/10 text-white rounded-xl shadow-xl">
-                    <ListBox 
-                      selectedKeys={new Set([category])}
-                      onSelectionChange={(keys) => setCategory(Array.from(keys)[0])}
-                      selectionMode="single"
-                    >
-                      <ListBox.Item id="Digital Art" textValue="Digital Art" className="text-xs text-gray-300 px-3 py-2 cursor-pointer hover:bg-white/5 hover:text-white rounded-lg transition-colors">Digital Art</ListBox.Item>
-                      <ListBox.Item id="Oil Painting" textValue="Oil Painting" className="text-xs text-gray-300 px-3 py-2 cursor-pointer hover:bg-white/5 hover:text-white rounded-lg transition-colors">Oil Painting</ListBox.Item>
-                      <ListBox.Item id="Abstract" textValue="Abstract" className="text-xs text-gray-300 px-3 py-2 cursor-pointer hover:bg-white/5 hover:text-white rounded-lg transition-colors">Abstract</ListBox.Item>
-                      <ListBox.Item id="Sculpture" textValue="Sculpture" className="text-xs text-gray-300 px-3 py-2 cursor-pointer hover:bg-white/5 hover:text-white rounded-lg transition-colors">Sculpture</ListBox.Item>
-                    </ListBox>
-                  </Select.Popover>
-                </Select>
-              </div>
-            </div>
-
-            {/* Submission Action Button */}
-            <Button
-              className="w-full bg-[#9353f7] hover:bg-[#8247df] text-white text-xs font-semibold rounded-xl h-10 mt-6 shadow-md transition-colors"
-            >
-              Publish artwork
-            </Button>
+              {/* Submission Action Button */}
+              <Button
+                type="submit"
+                className="w-full bg-[#9353f7] hover:bg-[#8247df] text-white text-xs font-semibold rounded-xl h-10 mt-6 shadow-md transition-colors"
+              >
+                Publish artwork
+              </Button>
+            </Form>
           </Card>
         </div>
 

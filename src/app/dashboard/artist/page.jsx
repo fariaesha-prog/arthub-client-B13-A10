@@ -97,7 +97,7 @@ export default function ArtistDashboard() {
         })}
       </div>
 
-      {/* 3. Operational Grid Section (Revenue Chart + Quick Upload) */}
+      {/* 3. Operational Grid Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Side: Monthly Revenue Chart */}
@@ -108,7 +108,6 @@ export default function ArtistDashboard() {
               <p className="text-xs text-gray-400 mt-0.5">Last 6 months · $12,480 total</p>
             </div>
 
-            {/* Dynamic CSS Chart Bar Stack */}
             <div className="flex items-end justify-between gap-3 pt-12 pb-2 h-52 w-full">
               {REVENUE_DATA.map((item, idx) => {
                 const heightPercent = (item.amount / maxRevenue) * 100;
@@ -138,7 +137,6 @@ export default function ArtistDashboard() {
             <div className="space-y-4">
               <h3 className="text-base font-semibold text-white tracking-tight">Quick Upload</h3>
               
-              {/* Drag & Drop Upload Block */}
               <label className="border border-dashed border-white/10 hover:border-[#9353f7]/50 bg-white/[0.01] rounded-xl p-6 flex flex-col items-center justify-center gap-1 text-center cursor-pointer transition-colors group">
                 <input 
                   type="file" 
@@ -152,7 +150,7 @@ export default function ArtistDashboard() {
                 <p className="text-[10px] text-gray-500">PNG, JPG, SVG · Max 50MB</p>
               </label>
 
-              {/* Title Field Input - Fixed to native onChange */}
+              {/* Title Field Input */}
               <div className="space-y-1.5 text-left">
                 <label className="text-xs font-medium text-gray-400">Title</label>
                 <Input
@@ -160,14 +158,12 @@ export default function ArtistDashboard() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Neon Reverie No. 4"
-                  classNames={{
-                    input: "text-xs placeholder-gray-600 text-white",
-                    inputWrapper: "bg-white/[0.02] border border-white/5 rounded-xl h-10 focus-within:!border-[#9353f7]/50 data-[hover=true]:border-white/10",
-                  }}
+                  variant="flat"
+                  className="w-full h-10 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-white"
                 />
               </div>
 
-              {/* Price Field Input - Fixed to native onChange */}
+              {/* Price Field Input */}
               <div className="space-y-1.5 text-left">
                 <label className="text-xs font-medium text-gray-400">Price (USD)</label>
                 <Input
@@ -175,14 +171,12 @@ export default function ArtistDashboard() {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="$0.00"
-                  classNames={{
-                    input: "text-xs placeholder-gray-600 text-white",
-                    inputWrapper: "bg-white/[0.02] border border-white/5 rounded-xl h-10 focus-within:!border-[#9353f7]/50 data-[hover=true]:border-white/10",
-                  }}
+                  variant="flat"
+                  className="w-full h-10 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-white"
                 />
               </div>
 
-              {/* Category Select Input - Fixed to official HeroUI v3 layout */}
+              {/* Category Select Input */}
               <div className="space-y-1.5 text-left">
                 <label className="text-xs font-medium text-gray-400">Category</label>
                 <Select
@@ -208,7 +202,6 @@ export default function ArtistDashboard() {
               </div>
             </div>
 
-            {/* Submission Action Button */}
             <Button
               className="w-full bg-[#9353f7] hover:bg-[#8247df] text-white text-xs font-semibold rounded-xl h-10 mt-6 shadow-md transition-colors"
             >

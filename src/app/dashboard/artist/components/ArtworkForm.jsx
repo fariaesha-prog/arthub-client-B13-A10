@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Input, TextArea, Button, Select, ListBox } from "@heroui/react";
+import { Form, Input, TextArea, Button, Select, ListBox } from "@heroui/react";
 import imageCompression from "browser-image-compression";
 
 const CATEGORIES = ["Digital Art", "Oil Painting", "Abstract", "Sculpture"];
@@ -12,11 +12,11 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
   const [price, setPrice] = useState(initialData?.price || "");
   const [category, setCategory] = useState(initialData?.category || "Digital Art");
   const [file, setFile] = useState(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  
+  const [localPreviewUrl, setLocalPreviewUrl] = useState(initialData?.imageUrl || ""); 
   const [compressingImage, setCompressingImage] = useState(false);
-  const [imagePreview, setImagePreview] = useState(initialData?.image || "");
+  const [uploadingImage, setUploadingImage] = useState(false);
 
-  // Handle local file selection, compress it, and set preview
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -26,26 +26,25 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1920,
-      useWebWorker: true,
+      useWebWorker: false, 
     };
 
     try {
       const compressedFile = await imageCompression(selectedFile, options);
       setFile(compressedFile);
-      setImagePreview(URL.createObjectURL(compressedFile));
+      setLocalPreviewUrl(URL.createObjectURL(compressedFile));
     } catch (error) {
-      console.error("Local client-side compression error:", error);
+      console.error("Local compression error:", error);
     } finally {
       setCompressingImage(false);
     }
   };
 
-  // Upload image to imgBB
   const uploadToImgBB = async (imageFile) => {
     const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY; 
     if (!IMGBB_API_KEY) {
       console.error("imgBB API key is missing in your .env.local file!");
-      return initialData?.image || ""; 
+      return initialData?.imageUrl || ""; 
     }
 
     const formData = new FormData();
@@ -69,10 +68,10 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
     setUploadingImage(true);
 
     try {
-      let imageUrl = imagePreview;
+      let finalImageUrl = initialData?.imageUrl || "";
 
       if (file) {
-        imageUrl = await uploadToImgBB(file);
+        finalImageUrl = await uploadToImgBB(file);
       }
 
       await onSubmit({
@@ -80,7 +79,7 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
         description,
         price: parseFloat(price),
         category,
-        imageUrl,
+        imageUrl: finalImageUrl, 
       });
     } catch (error) {
       console.error("Form submission error:", error);
@@ -91,25 +90,25 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto bg-[#111625]/40 border border-white/5 p-6 rounded-2xl text-left">
+    <Form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto bg-[#111625]/40 border border-white/5 p-6 rounded-2xl text-left w-full">
       <h2 className="text-xl font-bold text-white tracking-tight">
         {initialData ? "Edit Artwork" : "Add New Artwork"}
       </h2>
 
       {/* Image Upload Area */}
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 w-full">
         <label className="text-xs font-medium text-gray-400">Artwork Image</label>
-        <label className="border border-dashed border-white/10 hover:border-[#9353f7]/50 bg-white/[0.01] rounded-xl p-8 flex flex-col items-center justify-center gap-3 text-center cursor-pointer transition-colors group relative overflow-hidden h-48">
+        <label className="border border-dashed border-white/10 hover:border-[#9353f7]/50 bg-white/[0.01] rounded-xl p-8 flex flex-col items-center justify-center gap-3 text-center cursor-pointer transition-colors group relative overflow-hidden h-48 w-full">
           <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
           
-          {imagePreview ? (
+          {localPreviewUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" />
+            <img src={localPreviewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" />
           ) : null}
 
           <div className="relative z-10 flex flex-col items-center gap-1">
             <p className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
-              {compressingImage ? "Optimizing image weights..." : file ? file.name : "Click or drop artwork file here"}
+              {compressingImage ? "Optimizing dimensions..." : file ? file.name : "Click or drop artwork file here"}
             </p>
             <p className="text-[10px] text-gray-500">PNG, JPG, WEBP · Max 32MB</p>
           </div>
@@ -117,7 +116,7 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
       </div>
 
       {/* Title */}
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 w-full">
         <label className="text-xs font-medium text-gray-400">Title</label>
         <Input
           type="text"
@@ -125,23 +124,25 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. Neon Reverie No. 4"
-          className="bg-white/[0.02] border border-white/5 rounded-xl text-xs text-white focus-within:border-[#9353f7]/50"
+          className="w-full text-white"
+          variant="flat"
         />
       </div>
 
       {/* Description */}
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 w-full">
         <label className="text-xs font-medium text-gray-400">Description</label>
         <TextArea
           required
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe the inspiration, medium, or story behind this piece..."
-          className="bg-white/[0.02] border border-white/5 rounded-xl text-xs text-white focus-within:border-[#9353f7]/50 min-h-[100px]"
+          placeholder="Describe the inspiration..."
+          className="w-full text-white"
+          variant="flat"
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
         {/* Price */}
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-gray-400">Price (USD)</label>
@@ -152,7 +153,8 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="0.00"
-            className="bg-white/[0.02] border border-white/5 rounded-xl text-xs text-white focus-within:border-[#9353f7]/50"
+            className="w-full text-white"
+            variant="flat"
           />
         </div>
 
@@ -183,11 +185,10 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
       {/* Action Button */}
       <Button
         type="submit"
-        isLoading={compressingImage || uploadingImage || isSubmitting}
-        className="w-full bg-[#9353f7] hover:bg-[#8247df] text-white text-xs font-semibold rounded-xl h-10 shadow-md transition-colors"
+        className="w-full bg-[#9353f7] hover:bg-[#8247df] text-white text-xs font-semibold rounded-xl h-10 shadow-md transition-colors mt-2"
       >
         {compressingImage ? "Compressing canvas..." : uploadingImage ? "Uploading to CDN..." : isSubmitting ? "Saving artwork..." : initialData ? "Update Artwork" : "Publish Artwork"}
       </Button>
-    </form>
+    </Form>
   );
 }
