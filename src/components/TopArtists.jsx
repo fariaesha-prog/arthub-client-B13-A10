@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Card, Button, Avatar } from "@heroui/react";
-import { TOP_ARTISTS } from "@/data/artistsData"; // Importing the mock data file
+import { Card, Button, Avatar } from "@heroui/react"; // Clean root import
+import { TOP_ARTISTS } from "@/data/artistsData";
 
 export default function TopArtists() {
   return (
@@ -21,16 +21,16 @@ export default function TopArtists() {
             </p>
           </div>
           
-      <Button
-  as={Link}
-  href="/artists"
-  variant="light"
-  color="secondary"
-  size="sm"
-  className="text-xs sm:text-sm font-medium text-purple-400 hover:text-purple-300 p-2 min-w-0"
->
-  See all creators →
-</Button>
+          <Button
+            as={Link}
+            href="/artists"
+            variant="light"
+            color="secondary"
+            size="sm"
+            className="text-xs sm:text-sm font-medium text-purple-400 hover:text-purple-300 p-2 min-w-0"
+          >
+            See all creators →
+          </Button>
         </div>
 
         {/* Dynamic Grid Mapping */}
@@ -56,7 +56,14 @@ export default function TopArtists() {
                 </div>
 
                 {/* Optimized Avatar Component via HeroUI */}
-              
+                <Avatar
+                  isBordered
+                  color="secondary"
+                  radius="full"
+                  src={artist.avatar}
+                  name={artist.name}
+                  className="w-14 h-14 text-large flex-shrink-0 border-purple-500/30 z-10"
+                />
 
                 {/* Data Specifications text info */}
                 <div className="space-y-1 pr-6 z-10 text-left">
