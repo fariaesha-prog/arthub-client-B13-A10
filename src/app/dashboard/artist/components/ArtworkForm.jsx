@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Input, TextArea, Button, Select, ListBox } from "@heroui/react";
+import imageCompression from "browser-image-compression";
 
 const CATEGORIES = ["Digital Art", "Oil Painting", "Abstract", "Sculpture"];
 
@@ -12,14 +13,30 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
   const [category, setCategory] = useState(initialData?.category || "Digital Art");
   const [file, setFile] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [compressingImage, setCompressingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState(initialData?.image || "");
 
-  // Handle local file selection and preview
-  const handleFileChange = (e) => {
+  // Handle local file selection, compress it, and set preview
+  const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setImagePreview(URL.createObjectURL(selectedFile));
+    if (!selectedFile) return;
+
+    setCompressingImage(true);
+
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    try {
+      const compressedFile = await imageCompression(selectedFile, options);
+      setFile(compressedFile);
+      setImagePreview(URL.createObjectURL(compressedFile));
+    } catch (error) {
+      console.error("Local client-side compression error:", error);
+    } finally {
+      setCompressingImage(false);
     }
   };
 
@@ -28,7 +45,7 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
     const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY; 
     if (!IMGBB_API_KEY) {
       console.error("imgBB API key is missing in your .env.local file!");
-      return initialData?.image || ""; // Fallback to existing image if editing
+      return initialData?.image || ""; 
     }
 
     const formData = new FormData();
@@ -41,7 +58,7 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
 
     const data = await response.json();
     if (data.success) {
-      return data.data.url; // This is the direct hosting URL string
+      return data.data.url; 
     } else {
       throw new Error(data.error?.message || "imgBB upload failed");
     }
@@ -54,18 +71,16 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
     try {
       let imageUrl = imagePreview;
 
-      // Only upload a new file if the user actually selected one
       if (file) {
         imageUrl = await uploadToImgBB(file);
       }
 
-      // Pass the finalized payload back to the parent page (Add or Edit)
       await onSubmit({
         title,
         description,
         price: parseFloat(price),
         category,
-        image: imageUrl,
+        imageUrl,
       });
     } catch (error) {
       console.error("Form submission error:", error);
@@ -94,7 +109,7 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
 
           <div className="relative z-10 flex flex-col items-center gap-1">
             <p className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
-              {file ? file.name : "Click or drop artwork file here"}
+              {compressingImage ? "Optimizing image weights..." : file ? file.name : "Click or drop artwork file here"}
             </p>
             <p className="text-[10px] text-gray-500">PNG, JPG, WEBP · Max 32MB</p>
           </div>
@@ -110,10 +125,7 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. Neon Reverie No. 4"
-          classNames={{
-            input: "text-xs placeholder-gray-600 text-white",
-            inputWrapper: "bg-white/[0.02] border border-white/5 rounded-xl h-10 focus-within:!border-[#9353f7]/50 data-[hover=true]:border-white/10",
-          }}
+          className="bg-white/[0.02] border border-white/5 rounded-xl text-xs text-white focus-within:border-[#9353f7]/50"
         />
       </div>
 
@@ -125,10 +137,7 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe the inspiration, medium, or story behind this piece..."
-          classNames={{
-            input: "text-xs placeholder-gray-600 text-white min-h-[100px]",
-            inputWrapper: "bg-white/[0.02] border border-white/5 rounded-xl focus-within:!border-[#9353f7]/50 data-[hover=true]:border-white/10",
-          }}
+          className="bg-white/[0.02] border border-white/5 rounded-xl text-xs text-white focus-within:border-[#9353f7]/50 min-h-[100px]"
         />
       </div>
 
@@ -143,10 +152,7 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="0.00"
-            classNames={{
-              input: "text-xs placeholder-gray-600 text-white",
-              inputWrapper: "bg-white/[0.02] border border-white/5 rounded-xl h-10 focus-within:!border-[#9353f7]/50 data-[hover=true]:border-white/10",
-            }}
+            className="bg-white/[0.02] border border-white/5 rounded-xl text-xs text-white focus-within:border-[#9353f7]/50"
           />
         </div>
 
@@ -177,10 +183,10 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
       {/* Action Button */}
       <Button
         type="submit"
-        isLoading={uploadingImage || isSubmitting}
+        isLoading={compressingImage || uploadingImage || isSubmitting}
         className="w-full bg-[#9353f7] hover:bg-[#8247df] text-white text-xs font-semibold rounded-xl h-10 shadow-md transition-colors"
       >
-        {uploadingImage ? "Uploading image..." : isSubmitting ? "Saving artwork..." : initialData ? "Update Artwork" : "Publish Artwork"}
+        {compressingImage ? "Compressing canvas..." : uploadingImage ? "Uploading to CDN..." : isSubmitting ? "Saving artwork..." : initialData ? "Update Artwork" : "Publish Artwork"}
       </Button>
     </form>
   );
