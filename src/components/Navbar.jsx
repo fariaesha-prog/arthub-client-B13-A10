@@ -94,7 +94,7 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
-          <span className="bg-gradient-to-r from-purple-500 to-orange-400 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-purple-500 to-orange-400 bg-clip-text text-transparent">
             ArtHub
           </span>
         </Link>
