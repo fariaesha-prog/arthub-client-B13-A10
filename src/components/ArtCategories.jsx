@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
+import { Card, Button} from "@heroui/react";
 import { ART_CATEGORIES } from "@/data/categoriesData";
 
 export default function ArtCategories() {
@@ -20,16 +22,22 @@ export default function ArtCategories() {
             </p>
           </div>
           
-          <Link 
-            href="/categories" 
-            className="text-xs sm:text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1 group"
+          <Button
+            as={Link}
+            href="/categories"
+            variant="light"
+            color="secondary"
+            size="sm"
+            className="text-xs sm:text-sm font-medium text-purple-400 hover:text-purple-300 group p-2 min-w-0"
+            endContent={
+              <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+            }
           >
-            All mediums 
-            <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-          </Link>
+            All mediums
+          </Button>
         </div>
 
-        {/* Categories Responsive Grid - Updated to 4-column structure */}
+        {/* Categories Responsive Grid - 4-column layout mapping */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {ART_CATEGORIES.map((category, idx) => (
             <motion.div
@@ -38,45 +46,48 @@ export default function ArtCategories() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.08 }}
-              className="relative h-56 rounded-2xl overflow-hidden group border border-white/5 hover:border-purple-500/30 transition-all duration-300 shadow-lg cursor-pointer"
+              className="h-56 relative group"
             >
-              {/* Background Art Image */}
-              <img
-                src={category.image}
-                alt={category.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-              />
+              <Card
+                className="w-full h-full rounded-2xl overflow-hidden border border-white/5 hover:border-purple-500/30 transition-all duration-300 shadow-lg text-white bg-transparent"
+              >
+                {/* Background Art Image via HeroUI Optimization Engine */}
+              <Image
+  src={category.image}
+  alt={category.name}
+  fill
+  className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+/>
 
-              {/* Precise Dark Linear Gradient Overlay for perfect text contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0b0f1a] via-[#0b0f1a]/50 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
-              
-              {/* Card Interactive Purple Glow Overlay */}
-              <div className="absolute inset-0 bg-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-              {/* Content Placement Layout */}
-              <div className="absolute inset-0 p-5 flex flex-col justify-end z-10">
-                <h3 className="text-base sm:text-lg font-bold text-white tracking-tight transition-transform duration-300 group-hover:-translate-y-1">
-                  {category.name}
-                </h3>
+                {/* Linear Gradient & Interactive Purple Glow Layers */}
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0b0f1a] via-[#0b0f1a]/50 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
+                <div className="absolute inset-0 z-10 bg-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
-                <div className="flex items-center justify-between mt-1 overflow-hidden">
-                  <p className="text-xs text-gray-400 transition-transform duration-300 group-hover:-translate-y-0.5">
-                    {category.count}
-                  </p>
+                {/* Content Placement Layout */}
+                <div className="absolute inset-0 p-5 flex flex-col justify-end z-20">
+                  <h3 className="text-base sm:text-lg font-bold text-white tracking-tight transition-transform duration-300 group-hover:-translate-y-1">
+                    {category.name}
+                  </h3>
                   
-                  {/* Subtle arrow slide effect on hover */}
-                  <span className="text-purple-400 text-xs font-semibold opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-                    Explore →
-                  </span>
+                  <div className="flex items-center justify-between mt-1 overflow-hidden">
+                    <p className="text-xs text-gray-400 transition-transform duration-300 group-hover:-translate-y-0.5">
+                      {category.count}
+                    </p>
+                    
+                    {/* Subtle sliding explore text element on hover */}
+                    <span className="text-purple-400 text-xs font-semibold opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                      Explore →
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Semantic Link to Browse Page passing filter query */}
-              <Link 
-                href={`/browse?category=${category.slug}`} 
-                className="absolute inset-0 z-20" 
-                aria-label={`Browse ${category.name}`} 
-              />
+                {/* Semantic Next.js Link Wrapper overlaying the interactive card coordinate */}
+                <Link 
+                  href={`/browse?category=${category.slug}`} 
+                  className="absolute inset-0 z-30" 
+                  aria-label={`Browse ${category.name}`} 
+                />
+              </Card>
             </motion.div>
           ))}
         </div>

@@ -1,16 +1,22 @@
+import HeroSection from "@/components/HeroSection";
 import ArtCategories from "@/components/ArtCategories";
 import FeaturedArtworks from "@/components/FeaturedArtworks";
-import HeroSection from "@/components/HeroSection";
 import TopArtists from "@/components/TopArtists";
-import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-     <HeroSection />
-     <ArtCategories />
-     <FeaturedArtworks />
-     <TopArtists />
+    <div className="w-full flex flex-col bg-zinc-50 dark:bg-black font-sans transition-colors duration-200">
+      {/* 1. Banner Section (Tagline + Carousel Placeholder) */}
+      <HeroSection />
+      
+      {/* 2. Extra Section 2: Art Categories Grid */}
+      <ArtCategories />
+      
+      {/* 3. Dynamic Section: Featured Artworks (Auto-refreshes, latest 6 from DB) */}
+      <FeaturedArtworks />
+      
+      {/* 4. Extra Section 1: Top Artists (Display 3 highest-selling artists) */}
+      <TopArtists />
     </div>
   );
 }
