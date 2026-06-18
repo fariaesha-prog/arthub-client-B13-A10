@@ -9,36 +9,39 @@ export default function UploadArtworkPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
  
- const handleAddArtwork = async (formData) => {
-  // 🔍 Add this guard block right at the top
-  if (!formData.imageUrl || formData.imageUrl.trim() === "") {
-    alert("Please select and wait for your artwork image file to finish optimization before publishing.");
-    return;
-  }
-
-  setIsSubmitting(true);
-  try {
-    const response = await fetch("http://localhost:5000/api/artworks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    if (response.ok) {
-      alert("Artwork published successfully!");
-      router.push("/dashboard/artist/my-artworks"); 
-    } else {
-      alert("Failed to save artwork to backend database.");
+  const handleAddArtwork = async (formData) => {
+    // 🔍 Guard block to ensure image is optimized and uploaded to CDN first
+    if (!formData.imageUrl || formData.imageUrl.trim() === "") {
+      alert("Please select and wait for your artwork image file to finish optimization before publishing.");
+      return;
     }
-  } catch (error) {
-    console.error("Backend submission error:", error);
-    alert("Could not connect to the server.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("http://localhost:5000/api/artworks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // 💡 Added your auth token so the backend can verify the artist session!
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        alert("Artwork published successfully!");
+        router.push("/dashboard/artist/my-artworks"); 
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || "Failed to save artwork to backend database.");
+      }
+    } catch (error) {
+      console.error("Backend submission error:", error);
+      alert("Could not connect to the server.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
  
   return (
     <div className="min-h-screen bg-[#0B0E14] text-white p-8 lg:p-12 space-y-8 animate-in fade-in duration-300">

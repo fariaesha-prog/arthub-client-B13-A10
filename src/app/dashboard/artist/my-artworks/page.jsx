@@ -12,7 +12,12 @@ export default function MyArtworksPage() {
   useEffect(() => {
     const fetchMyArtworks = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/artworks"); 
+        // 💡 Passed authorization token to fetch only this specific artist's works
+        const response = await fetch("http://localhost:5000/api/artworks", {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        }); 
         const data = await response.json();
         
         if (response.ok) {
@@ -32,15 +37,20 @@ export default function MyArtworksPage() {
     if (!confirm("Are you sure you want to permanently delete this masterpiece?")) return;
 
     try {
+      // 💡 Passed authorization token so the backend can verify ownership before deleting
       const response = await fetch(`http://localhost:5000/api/artworks/${id}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
       });
 
       if (response.ok) {
         setArtworks((prev) => prev.filter((item) => item._id !== id));
         alert("Artwork deleted successfully.");
       } else {
-        alert("Failed to delete artwork.");
+        const errorData = await response.json();
+        alert(errorData.message || "Failed to delete artwork.");
       }
     } catch (error) {
       console.error("Error deleting artwork:", error);

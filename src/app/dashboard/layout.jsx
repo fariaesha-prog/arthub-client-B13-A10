@@ -1,9 +1,11 @@
+import AuthGuard from '@/components/AuthGuard';
 import DashboardSidebar from '@/components/dashboard/DashBoardSidebar';
 import React from 'react';
 
 const DashboardLayout = ({children}) => {
     return (
         // Added 'flex h-screen' to make the container a flexbox
+        <AuthGuard>
         <div className="flex h-screen">
             {/* The Sidebar */}
             <DashboardSidebar />
@@ -13,7 +15,9 @@ const DashboardLayout = ({children}) => {
                 {children}
             </div>
         </div>
+        </AuthGuard>
     );
+
 };
 
 export default DashboardLayout;
