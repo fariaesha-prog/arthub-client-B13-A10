@@ -57,7 +57,7 @@ useEffect(() => {
             <Link href="/dashboard/artist/overview" className={getLinkClass("/dashboard/artist/overview")}>Overview</Link>
             <Link href="/dashboard/artist/upload-artwork" className={getLinkClass("/dashboard/artist/upload-artwork")}>Upload artwork</Link>
             <Link href="/dashboard/artist/my-artworks" className={getLinkClass("/dashboard/artist/my-artworks")}>My artworks</Link>
-            <Link href="/dashboard/sales" className={getLinkClass("/dashboard/sales")}>Sales</Link>
+            <Link href="/dashboard/artist/sales" className={getLinkClass("/dashboard/artist/sales")}>Sales</Link>
           </nav>
         </div>
 
