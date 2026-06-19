@@ -64,8 +64,8 @@ useEffect(() => {
         <div>
           <p className="text-gray-500 text-xs font-bold uppercase mb-2 px-2">Account</p>
           <nav className="space-y-1">
-            <Link href="/dashboard/payouts" className={getLinkClass("/dashboard/payouts")}>Payouts</Link>
-            <Link href="/dashboard/settings" className={getLinkClass("/dashboard/settings")}>Settings</Link>
+            <Link href="/dashboard/artist/payouts" className={getLinkClass("/dashboard/artist/payouts")}>Payouts</Link>
+            <Link href="/dashboard/artist/settings" className={getLinkClass("/dashboard/artist/settings")}>Settings</Link>
           </nav>
         </div>
       </div>
