@@ -29,17 +29,12 @@ export default function FeaturedArtworks() {
               Hand-picked by our curation team this week
             </p>
           </div>
-
-          <Button
-            as={Link}
-            href="/browse"
-            variant="light"
-            color="secondary"
-            size="sm"
-            className="text-xs sm:text-sm font-semibold text-purple-400 hover:text-purple-300"
-          >
-            See all artworks →
-          </Button>
+<Link
+  href="/browse"
+  className="text-xs sm:text-sm font-semibold text-purple-400 hover:text-purple-300 transition-colors"
+>
+  See all artworks →
+</Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
