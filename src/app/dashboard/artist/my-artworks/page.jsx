@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function MyArtworksPage() {
   const [artworks, setArtworks] = useState([]);
@@ -132,26 +133,27 @@ export default function MyArtworksPage() {
                   </td>
                   
                   {/* Actions Column */}
-                  <td className="py-4 px-4 align-middle">
-                    <div className="flex justify-center items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="flat"
-                        onClick={() => router.push(`/dashboard/artist/edit-artwork/${artwork._id}`)}
-                        className="bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-gray-300 text-[11px] rounded-lg h-8 px-3"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="flat"
-                        onClick={() => handleDelete(artwork._id)}
-                        className="bg-danger/10 hover:bg-danger/20 text-danger text-[11px] rounded-lg h-8 px-3"
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
+                {/* Corrected Actions Column */}
+<td className="py-4 px-4 align-middle">
+  <div className="flex justify-center items-center gap-2">
+    {/* Use ONLY the Link component for navigation */}
+    <Link 
+      href={`/dashboard/artist/edit/${artwork._id}`}
+      className="bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-gray-300 text-[11px] rounded-lg h-8 px-3 flex items-center"
+    >
+      Edit
+    </Link>
+
+    <Button
+      size="sm"
+      variant="flat"
+      onClick={() => handleDelete(artwork._id)}
+      className="bg-danger/10 hover:bg-danger/20 text-danger text-[11px] rounded-lg h-8 px-3"
+    >
+      Delete
+    </Button>
+  </div>
+</td>
 
                 </tr>
               ))
