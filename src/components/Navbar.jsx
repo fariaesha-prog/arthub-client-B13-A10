@@ -9,11 +9,11 @@ import { authClient } from "@/lib/auth-client";
 function DashboardDropdown({ userRole }) {
   const [open, setOpen] = useState(false);
 
-  const items = [
-    { label: "Overview", href: `/${userRole}/dashboard` },
-    { label: "My Artworks", href: `/${userRole}/uploads` },
-    { label: "Settings", href: `/${userRole}/settings` },
-  ];
+ const items = [
+  { label: "Overview", href: `/dashboard/${userRole}/overview` },
+  { label: "My Artworks", href: `/dashboard/${userRole}/my-artworks` },
+  { label: "Settings", href: `/dashboard/${userRole}/settings` },
+];
 
   return (
     <div className="relative">
@@ -76,6 +76,7 @@ export default function Navbar() {
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
+           
           setIsLoggedIn(true);
         } else {
           authClient.clearToken();
@@ -239,13 +240,13 @@ export default function Navbar() {
               </Link>
             ))}
 
-            {isLoggedIn && userRole && (
-              <>
-                <Link href={`/${userRole}/dashboard`} onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm text-gray-300 hover:text-white transition-colors">Overview</Link>
-                <Link href={`/${userRole}/uploads`} onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm text-gray-300 hover:text-white transition-colors">My Artworks</Link>
-                <Link href={`/${userRole}/settings`} onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm text-gray-300 hover:text-white transition-colors">Settings</Link>
-              </>
-            )}
+          {isLoggedIn && userRole && (
+  <>
+    <Link href={`/dashboard/${userRole}/overview`} onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm text-gray-300 hover:text-white transition-colors">Overview</Link>
+    <Link href={`/dashboard/${userRole}/my-artworks`} onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm text-gray-300 hover:text-white transition-colors">My Artworks</Link>
+    <Link href={`/dashboard/${userRole}/settings`} onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm text-gray-300 hover:text-white transition-colors">Settings</Link>
+  </>
+)}
           </div>
 
           <div className="pt-4 border-t border-white/5 w-full">
