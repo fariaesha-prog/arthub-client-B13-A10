@@ -29,6 +29,13 @@ export default function LoginPage() {
   const BACKEND_URL = "http://localhost:5000";
   const GOOGLE_CLIENT_ID = "1008811192795-b75hk9kdaipvgglsknmebu50jlofsslt.apps.googleusercontent.com";
 
+  // Shared routing configuration map
+  const routes = {
+    admin: "/dashboard/admin/overview",
+    artist: "/dashboard/artist/overview",
+    user: "/"
+  };
+
   const handleGoogleCallback = async (response) => {
     setError(""); setLoading(true);
     try {
@@ -42,10 +49,16 @@ export default function LoginPage() {
 
       authClient.setToken(data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      window.dispatchEvent(new Event("storage"));
 
-      router.push(data.user.role?.toLowerCase() === "artist" ? "/dashboard/artist/overview" : "/");
+      const targetRoute = routes[data.user.role?.toLowerCase()] || "/";
+      router.push(targetRoute);
       router.refresh();
-    } catch (err) { setError("Google authentication failed."); } finally { setLoading(false); }
+    } catch (err) { 
+      setError("Google authentication failed."); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -63,11 +76,16 @@ export default function LoginPage() {
 
       authClient.setToken(data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-window.dispatchEvent(new Event("storage"));
-      const routes = { admin: "/admin/dashboard", artist: "/dashboard/artist/overview", user: "/" };
-      router.push(routes[data.user.role?.toLowerCase()] || "/");
+      window.dispatchEvent(new Event("storage"));
+
+      const targetRoute = routes[data.user.role?.toLowerCase()] || "/";
+      router.push(targetRoute);
       router.refresh();
-    } catch (err) { setError(err.message || "Login failed."); } finally { setLoading(false); }
+    } catch (err) { 
+      setError(err.message || "Login failed."); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   useEffect(() => {
