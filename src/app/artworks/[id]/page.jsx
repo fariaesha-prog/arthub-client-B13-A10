@@ -15,12 +15,25 @@ export default function ArtworkDetailsPage() {
   const [buying, setBuying] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [buyMsg, setBuyMsg] = useState({ type: "", text: "" });
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [postingComment, setPostingComment] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [commentMsg, setCommentMsg] = useState({ type: "", text: "" });
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (stored) setUser(JSON.parse(stored));
     fetchArtwork();
+    fetchComments(); // Added this so comments actually load when entering the page!
   }, [id]);
+
+  useEffect(() => {
+    if (user) checkPurchase();
+  }, [user, id]);
 
   const fetchArtwork = async () => {
     try {
@@ -49,6 +62,7 @@ export default function ArtworkDetailsPage() {
       const data = await res.json();
       if (res.ok) {
         setBuyMsg({ type: "success", text: "Artwork purchased successfully! Check your collection." });
+        checkPurchase(); // Refresh purchase status instantly
       } else {
         setBuyMsg({ type: "error", text: data.message || "Purchase failed." });
       }
@@ -77,6 +91,93 @@ export default function ArtworkDetailsPage() {
       alert("Could not connect to server.");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/artworks/${id}/comments`);
+      const data = await res.json();
+      setComments(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const checkPurchase = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !user) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/sales/user", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const purchases = await res.json();
+      const purchased = purchases.some(p => p.artworkId?.toString() === id);
+      setHasPurchased(purchased);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handlePostComment = async () => {
+    if (!newComment.trim()) return;
+    setPostingComment(true);
+    setCommentMsg({ type: "", text: "" });
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5000/api/artworks/${id}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ comment: newComment })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setComments(prev => [data, ...prev]);
+        setNewComment("");
+        setCommentMsg({ type: "success", text: "Comment posted!" });
+      } else {
+        setCommentMsg({ type: "error", text: data.message });
+      }
+    } catch (err) {
+      setCommentMsg({ type: "error", text: "Failed to post comment." });
+    } finally {
+      setPostingComment(false);
+    }
+  };
+
+  const handleEditComment = async (commentId) => {
+    if (!editText.trim()) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5000/api/comments/${commentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ comment: editText })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setComments(prev => prev.map(c => c._id === commentId ? { ...c, comment: editText, updatedAt: new Date() } : c));
+        setEditingId(null);
+        setEditText("");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!confirm("Delete this comment?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5000/api/comments/${commentId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) setComments(prev => prev.filter(c => c._id !== commentId));
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -118,7 +219,6 @@ export default function ArtworkDetailsPage() {
   return (
     <div className="min-h-screen bg-[#0b0f1a] text-white px-4 py-12">
       <div className="max-w-6xl mx-auto">
-
         {/* Back button */}
         <button
           onClick={() => router.back()}
@@ -131,7 +231,6 @@ export default function ArtworkDetailsPage() {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-
           {/* Left: Image */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -185,7 +284,7 @@ export default function ArtworkDetailsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Price</p>
-                <p className="text-2xl font-bold text-orange-400">${Number(artwork.price).toFixed(2)}</p>
+                <p className="text-2xl font-bold text-orange-400">${OriginalPrice => Number(artwork.price).toFixed(2)}</p>
               </div>
               <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Uploaded</p>
@@ -262,6 +361,155 @@ export default function ArtworkDetailsPage() {
               </Link>
             </div>
           </motion.div>
+        </div>
+      </div>
+
+      {/* Comments Section */}
+      <div className="max-w-6xl mx-auto mt-16">
+        <div className="border-t border-white/5 pt-10">
+          <h2 className="text-xl font-bold text-white mb-2">
+            Comments
+            {comments.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-gray-500">({comments.length})</span>
+            )}
+          </h2>
+          <p className="text-xs text-gray-500 mb-8">Only buyers of this artwork can leave comments.</p>
+
+          {/* Comment Form */}
+          {user && hasPurchased && (
+            <div className="mb-8 bg-white/[0.02] border border-white/5 rounded-2xl p-5">
+              <p className="text-xs text-gray-400 mb-3 font-medium">Leave a comment</p>
+              {commentMsg.text && (
+                <div className={`mb-3 p-2.5 rounded-xl text-xs ${commentMsg.type === "success" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"}`}>
+                  {commentMsg.text}
+                </div>
+              )}
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Share your thoughts about this artwork..."
+                rows={3}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 text-sm focus:outline-none focus:border-purple-500/60 transition-all resize-none"
+              />
+              <div className="flex justify-end mt-3">
+                <button
+                  onClick={handlePostComment}
+                  disabled={postingComment || !newComment.trim()}
+                  className="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-xl transition-colors"
+                >
+                  {postingComment ? "Posting..." : "Post Comment"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Not purchased notice */}
+          {user && !hasPurchased && !isOwner && (
+            <div className="mb-8 bg-white/[0.02] border border-white/5 rounded-2xl p-5 text-center">
+              <p className="text-sm text-gray-400">Purchase this artwork to leave a comment.</p>
+            </div>
+          )}
+
+          {/* Not logged in notice */}
+          {!user && (
+            <div className="mb-8 bg-white/[0.02] border border-white/5 rounded-2xl p-5 text-center">
+              <p className="text-sm text-gray-400">
+                <Link href="/login" className="text-purple-400 hover:text-purple-300">Sign in</Link> and purchase this artwork to comment.
+              </p>
+            </div>
+          )}
+
+          {/* Comments List */}
+          {commentsLoading ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 animate-pulse">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-white/5" />
+                    <div className="h-3 bg-white/5 rounded w-32" />
+                  </div>
+                  <div className="h-3 bg-white/5 rounded w-full mb-2" />
+                  <div className="h-3 bg-white/5 rounded w-2/3" />
+                </div>
+              ))}
+            </div>
+          ) : comments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-32 text-center">
+              <p className="text-gray-500 text-sm">No comments yet. Be the first to share your thoughts!</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {comments.map((c) => (
+                <motion.div
+                  key={c._id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white/[0.02] border border-white/5 rounded-2xl p-5"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                        {c.userName?.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">{c.userName}</p>
+                        <p className="text-[10px] text-gray-500">
+                          {new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          {c.updatedAt && <span className="ml-1 text-gray-600">(edited)</span>}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Edit/Delete for own comments */}
+                    {user?.email === c.userEmail && (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => { setEditingId(c._id); setEditText(c.comment); }}
+                          className="text-xs text-gray-500 hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteComment(c._id)}
+                          className="text-xs text-gray-500 hover:text-rose-400 transition-colors px-2 py-1 rounded-lg hover:bg-rose-500/10"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Comment text or edit form */}
+                  {editingId === c._id ? (
+                    <div className="mt-3">
+                      <textarea
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        rows={3}
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-purple-500/60 transition-all resize-none"
+                      />
+                      <div className="flex gap-2 justify-end mt-2">
+                        <button
+                          onClick={() => { setEditingId(null); setEditText(""); }}
+                          className="px-4 py-1.5 text-xs text-gray-400 hover:text-white border border-white/10 rounded-lg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => handleEditComment(c._id)}
+                          className="px-4 py-1.5 text-xs bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-300 mt-3 leading-relaxed">{c.comment}</p>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
