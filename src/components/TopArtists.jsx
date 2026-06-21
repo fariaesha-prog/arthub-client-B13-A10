@@ -38,7 +38,7 @@ export default function TopArtists() {
             </p>
           </div>
           <Link
-            href="/browse"
+            href="/artists"
             className="text-xs sm:text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
           >
             See all creators →

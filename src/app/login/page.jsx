@@ -129,6 +129,13 @@ export default function LoginPage() {
           <button type="submit" disabled={loading} className="w-full py-3 bg-purple-600 rounded-xl">{loading ? "Signing In..." : "Sign In"}</button>
         </form>
         <div id="google-signin-btn" className="mt-5 w-full flex justify-center"></div>
+         <p className="text-center text-xs text-gray-500 mt-6">
+          Don't have an account?{" "}
+          <Link href="/register" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
+            Sign up
+          </Link>
+        </p>
+
       </div>
     </main>
   );

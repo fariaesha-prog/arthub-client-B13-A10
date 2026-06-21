@@ -116,27 +116,21 @@ export default function HeroSection() {
         </AnimatePresence>
 
         {/* Action Controls Group (HeroUI Custom Wrapped CTA Buttons) */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 w-full sm:w-auto">
-          <Button
-            as={Link}
-            href="/browse"
-            radius="xl"
-            size="lg"
-            className="w-full sm:w-auto px-8 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-sm transition-all duration-300 shadow-lg shadow-purple-900/20"
-          >
-            Discover & Buy Original Art
-          </Button>
-          <Button
-            as={Link}
-            href="/register?role=artist"
-            radius="xl"
-            size="lg"
-            variant="bordered"
-            className="w-full sm:w-auto px-8 bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20 text-white font-medium text-sm transition-all duration-300 backdrop-blur-sm"
-          >
-            Sell your art
-          </Button>
-        </div>
+     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 w-full sm:w-auto">
+  <Link
+    href="/browse"
+    className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-sm transition-all duration-300 shadow-lg shadow-purple-900/20 rounded-xl text-center"
+  >
+    Discover & Buy Original Art
+  </Link>
+  <Link
+    href="/register?role=artist"
+    className="w-full sm:w-auto px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium text-sm transition-all duration-300 backdrop-blur-sm rounded-xl text-center"
+  >
+    Sell your art
+  </Link>
+</div>
+     
 
         {/* Interactive Indicator Navigation Dots */}
         <div className="flex items-center gap-2 mb-10">
