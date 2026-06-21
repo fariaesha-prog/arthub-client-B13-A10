@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
-
 function DashboardDropdown({ userRole }) {
   const [open, setOpen] = useState(false);
 
@@ -254,7 +253,7 @@ export default function Navbar() {
               </Link>
             ))}
 
-          {isLoggedIn && userRole && (
+  {isLoggedIn && userRole && (
   <>
     {userRole === "artist" && (
       <>

@@ -132,48 +132,51 @@ export default function BrowseArtworksPage() {
                 transition={{ duration: 0.3, delay: idx * 0.04 }}
                 className="group bg-[#111625] border border-white/5 hover:border-white/10 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 flex flex-col"
               >
-                {/* Image */}
-                <div className="relative w-full aspect-[4/3] overflow-hidden bg-white/5">
-                  <img
-                    src={art.imageUrl}
-                    alt={art.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#111625]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="absolute top-3 left-3 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[#0b0f1a]/70 border border-white/10 text-gray-300 backdrop-blur-sm">
-                    {art.category}
-                  </span>
-                </div>
+              {/* Image - now clickable */}
+<Link href={`/artworks/${art._id}`} className="relative w-full aspect-[4/3] overflow-hidden bg-white/5 block">
+  <img
+    src={art.imageUrl}
+    alt={art.title}
+    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+  />
+  <div className="absolute inset-0 bg-gradient-to-t from-[#111625]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+  <span className="absolute top-3 left-3 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[#0b0f1a]/70 border border-white/10 text-gray-300 backdrop-blur-sm">
+    {art.category}
+  </span>
+</Link>
 
-                {/* Body */}
-                <div className="p-4 flex flex-col flex-1 justify-between gap-4">
-                  <div>
-                    <h3 className="font-bold text-sm text-gray-100 group-hover:text-white transition-colors truncate">
-                      {art.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      by <span className="text-gray-400">{art.artist?.name || "Unknown"}</span>
-                    </p>
-                    {art.description && (
-                      <p className="text-xs text-gray-600 mt-2 line-clamp-2">{art.description}</p>
-                    )}
-                  </div>
+{/* Body */}
+<div className="p-4 flex flex-col flex-1 justify-between gap-4">
+  <div>
+    <Link href={`/artworks/${art._id}`}>
+      <h3 className="font-bold text-sm text-gray-100 group-hover:text-white transition-colors truncate hover:text-purple-300">
+        {art.title}
+      </h3>
+    </Link>
+    <p className="text-xs text-gray-500 mt-0.5">
+      by <span className="text-gray-400">{art.artist?.name || "Unknown"}</span>
+    </p>
+    {art.description && (
+      <p className="text-xs text-gray-600 mt-2 line-clamp-2">{art.description}</p>
+    )}
+  </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                    <span className="text-base font-bold text-orange-400">${Number(art.price).toFixed(2)}</span>
-                    {user?.role === "artist" || art.artist?.email === user?.email ? (
-                      <span className="text-xs text-gray-600 italic">Your artwork</span>
-                    ) : (
-                      <button
-                        onClick={() => handleBuy(art)}
-                        disabled={buyingId === art._id}
-                        className="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-xl transition-colors"
-                      >
-                        {buyingId === art._id ? "Buying..." : "Buy Now"}
-                      </button>
-                    )}
-                  </div>
-                </div>
+  <div className="flex items-center justify-between pt-3 border-t border-white/5">
+    <span className="text-base font-bold text-orange-400">${Number(art.price).toFixed(2)}</span>
+    {user?.role === "artist" || art.artist?.email === user?.email ? (
+      <span className="text-xs text-gray-600 italic">Your artwork</span>
+    ) : (
+      <button
+        onClick={() => handleBuy(art)}
+        disabled={buyingId === art._id}
+        className="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-xl transition-colors"
+      >
+        {buyingId === art._id ? "Buying..." : "Buy Now"}
+      </button>
+    )}
+  </div>
+</div>
+               
               </motion.div>
             ))}
           </div>

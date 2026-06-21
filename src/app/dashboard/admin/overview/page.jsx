@@ -41,15 +41,11 @@ export default function AdminOverviewPage() {
 
   return (
     <div className="min-h-screen bg-[#0B0E14] text-white p-8 lg:p-12 space-y-8">
-      {/* Header */}
       <div className="max-w-7xl mx-auto border-b border-white/5 pb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400">
-          Admin Analytics
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400">Admin Analytics</h1>
         <p className="text-sm text-gray-400 mt-1.5">Platform-wide overview and performance metrics.</p>
       </div>
 
-      {/* Stats Cards */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {loading ? [...Array(4)].map((_, i) => (
           <div key={i} className="bg-[#111625]/40 border border-white/5 rounded-2xl h-28 animate-pulse" />
@@ -73,9 +69,7 @@ export default function AdminOverviewPage() {
         })}
       </div>
 
-      {/* Charts Row */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sales Chart */}
         <div className="lg:col-span-2">
           <Card className="bg-[#111625]/40 border border-white/5 p-6 rounded-2xl h-full">
             <h3 className="text-base font-semibold text-white mb-1">Monthly Sales Revenue</h3>
@@ -105,7 +99,6 @@ export default function AdminOverviewPage() {
           </Card>
         </div>
 
-        {/* Category Pie Chart */}
         <div>
           <Card className="bg-[#111625]/40 border border-white/5 p-6 rounded-2xl h-full">
             <h3 className="text-base font-semibold text-white mb-1">Artworks by Category</h3>
