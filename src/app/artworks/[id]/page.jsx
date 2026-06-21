@@ -85,10 +85,10 @@ export default function ArtworkDetailsPage() {
       if (res.ok) {
         router.push("/dashboard/artist/my-artworks");
       } else {
-        alert("Failed to delete artwork.");
+       addToast("Failed to delete artwork.", "error");
       }
     } catch (err) {
-      alert("Could not connect to server.");
+      addToast("Could not connect to server.", "error");
     } finally {
       setDeleting(false);
     }
