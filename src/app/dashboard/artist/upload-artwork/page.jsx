@@ -18,7 +18,7 @@ export default function UploadArtworkPage() {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("http://https://arthub-server-9t9m.onrender.com/api/artworks", {
+      const response = await fetch("https://arthub-server-9t9m.onrender.com/api/artworks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

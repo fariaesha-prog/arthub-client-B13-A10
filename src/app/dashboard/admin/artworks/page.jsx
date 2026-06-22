@@ -16,7 +16,7 @@ export default function AdminArtworksPage() {
   const fetchArtworks = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/admin/artworks", {
+      const res = await fetch("https://arthub-server-9t9m.onrender.com/api/admin/artworks", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -33,7 +33,7 @@ export default function AdminArtworksPage() {
     setDeletingId(id);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/artworks/${id}`, {
+      const res = await fetch(`https://arthub-server-9t9m.onrender.com/api/artworks/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });

@@ -12,7 +12,7 @@ export default function TopArtists() {
   useEffect(() => {
     const fetchTopArtists = async () => {
       try {
-        const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/artists/top");
+        const res = await fetch("https://arthub-server-9t9m.onrender.com/api/artists/top");
         const data = await res.json();
         setArtists(data);
       } catch (err) {

@@ -20,7 +20,7 @@ export default function UserOverviewPage() {
   const fetchPurchases = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/sales/user", {
+      const res = await fetch("https://arthub-server-9t9m.onrender.com/api/sales/user", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();

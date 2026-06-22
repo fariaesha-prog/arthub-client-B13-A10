@@ -28,10 +28,10 @@ export default function ArtistDashboard() {
     const token = localStorage.getItem("token");
     try {
       const [salesRes, artworksRes] = await Promise.all([
-        fetch("http://https://arthub-server-9t9m.onrender.com/api/sales/artist", {
+        fetch("https://arthub-server-9t9m.onrender.com/api/sales/artist", {
           headers: { "Authorization": `Bearer ${token}` }
         }),
-        fetch("http://https://arthub-server-9t9m.onrender.com/api/artworks", {
+        fetch("https://arthub-server-9t9m.onrender.com/api/artworks", {
           headers: { "Authorization": `Bearer ${token}` }
         })
       ]);

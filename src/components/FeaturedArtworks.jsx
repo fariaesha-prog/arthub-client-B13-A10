@@ -12,7 +12,7 @@ export default function FeaturedArtworks() {
   useEffect(() => {
     const fetchArtworks = async () => {
       try {
-        const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/artworks/public");
+        const res = await fetch("https://arthub-server-9t9m.onrender.com/api/artworks/public");
         const data = await res.json();
         // Shuffle and take 6
         const shuffled = [...data].sort(() => 0.5 - Math.random()).slice(0, 6);

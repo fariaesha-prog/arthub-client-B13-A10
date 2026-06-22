@@ -14,7 +14,7 @@ export default function MyArtworksPage() {
     const fetchMyArtworks = async () => {
       try {
         // 💡 Passed authorization token to fetch only this specific artist's works
-        const response = await fetch("http://https://arthub-server-9t9m.onrender.com/api/artworks", {
+        const response = await fetch("https://arthub-server-9t9m.onrender.com/api/artworks", {
           headers: {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           }
@@ -39,7 +39,7 @@ export default function MyArtworksPage() {
 
     try {
       // 💡 Passed authorization token so the backend can verify ownership before deleting
-      const response = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/artworks/${id}`, {
+      const response = await fetch(`https://arthub-server-9t9m.onrender.com/api/artworks/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`

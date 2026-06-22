@@ -28,7 +28,7 @@ export default function BrowseArtworksPage() {
 
     const fetchArtworks = async () => {
       try {
-        const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/artworks/public");
+        const res = await fetch("https://arthub-server-9t9m.onrender.com/api/artworks/public");
         const data = await res.json();
         setArtworks(data);
       } catch (err) {
@@ -68,7 +68,7 @@ export default function BrowseArtworksPage() {
     if (user?.role === "artist") { addToast("Artists cannot purchase artworks.", "warning"); return; }
     setBuyingId(artwork._id);
     try {
-      const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/sales", {
+      const res = await fetch("https://arthub-server-9t9m.onrender.com/api/sales", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ artworkId: artwork._id })

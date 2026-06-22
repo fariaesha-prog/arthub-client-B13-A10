@@ -15,7 +15,7 @@ export default function AdminOverviewPage() {
     const fetchAnalytics = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/admin/analytics", {
+        const res = await fetch("https://arthub-server-9t9m.onrender.com/api/admin/analytics", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();

@@ -18,7 +18,7 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/admin/users", {
+      const res = await fetch("https://arthub-server-9t9m.onrender.com/api/admin/users", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -34,7 +34,7 @@ export default function AdminUsersPage() {
     setUpdatingId(userId);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/admin/users/${userId}/role`, {
+      const res = await fetch(`https://arthub-server-9t9m.onrender.com/api/admin/users/${userId}/role`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ role: newRole })
