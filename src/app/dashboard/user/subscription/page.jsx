@@ -39,9 +39,10 @@ const TIERS = [
   }
 ];
 
-const router = useRouter();
+
 
 export default function SubscriptionPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(null);
 const handleUpgrade = async (tierName) => {
   const token = localStorage.getItem("token");

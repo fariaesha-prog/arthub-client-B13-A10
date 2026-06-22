@@ -5,20 +5,56 @@ import { useRouter } from "next/navigation";
 
 export default function ArtistSettingsPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState({ name: "", email: "" });
+  const [profile, setProfile] = useState({ name: "", email: "", avatar: "" });
   const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [profileMsg, setProfileMsg] = useState({ type: "", text: "" });
   const [passwordMsg, setPasswordMsg] = useState({ type: "", text: "" });
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState("");
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (stored) {
       const user = JSON.parse(stored);
-      setProfile({ name: user.name || "", email: user.email || "" });
+      setProfile({ name: user.name || "", email: user.email || "", avatar: user.avatar || "" });
+      setAvatarPreview(user.avatar || "");
     }
   }, []);
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setAvatarUploading(true);
+    setProfileMsg({ type: "", text: "" });
+
+    try {
+      const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const avatarUrl = data.data.url;
+        setAvatarPreview(avatarUrl);
+        setProfile(prev => ({ ...prev, avatar: avatarUrl }));
+        setProfileMsg({ type: "success", text: "Photo uploaded! Click Save Changes to apply." });
+      } else {
+        setProfileMsg({ type: "error", text: "Failed to upload photo." });
+      }
+    } catch (err) {
+      setProfileMsg({ type: "error", text: "Upload failed. Try again." });
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -28,18 +64,15 @@ export default function ArtistSettingsPage() {
       const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:5000/api/auth/profile", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(profile)
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      // Update localStorage with new name/email and new token
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      window.dispatchEvent(new Event("storage"));
 
       setProfileMsg({ type: "success", text: "Profile updated successfully." });
     } catch (err) {
@@ -67,14 +100,8 @@ export default function ArtistSettingsPage() {
       const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:5000/api/auth/change-password", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          currentPassword: passwords.currentPassword,
-          newPassword: passwords.newPassword
-        })
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ currentPassword: passwords.currentPassword, newPassword: passwords.newPassword })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
@@ -103,19 +130,51 @@ export default function ArtistSettingsPage() {
         <p className="text-sm text-gray-400 mt-1.5">Manage your account details and password.</p>
       </div>
 
-      {/* Avatar + Name display */}
+      {/* Avatar Section */}
       <div className="max-w-3xl mx-auto">
-        <div className="flex items-center gap-4 bg-white/[0.02] border border-white/5 rounded-2xl p-5">
-          <div className="w-14 h-14 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl shrink-0">
-            {getInitials(profile.name)}
+        <div className="flex items-center gap-6 bg-white/[0.02] border border-white/5 rounded-2xl p-5">
+          {/* Avatar Preview */}
+          <div className="relative shrink-0">
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Profile"
+                className="w-20 h-20 rounded-full object-cover border-2 border-purple-500/30"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-2xl border-2 border-purple-500/30">
+                {getInitials(profile.name)}
+              </div>
+            )}
+            {avatarUploading && (
+              <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              </div>
+            )}
           </div>
-          <div>
-            <p className="text-white font-semibold">{profile.name || "—"}</p>
-            <p className="text-gray-400 text-sm">{profile.email || "—"}</p>
+
+          {/* Info + Upload */}
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-semibold truncate">{profile.name || "—"}</p>
+            <p className="text-gray-400 text-sm truncate">{profile.email || "—"}</p>
             <span className="inline-block mt-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
-              Artist · Verified ✓
+              User · Verified ✓
             </span>
           </div>
+
+          {/* Upload Button */}
+          <label className="shrink-0 cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+              disabled={avatarUploading}
+            />
+            <span className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-300 hover:text-white text-xs font-medium rounded-xl transition-colors">
+              {avatarUploading ? "Uploading..." : "Change Photo"}
+            </span>
+          </label>
         </div>
       </div>
 
