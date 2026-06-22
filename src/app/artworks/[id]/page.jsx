@@ -49,29 +49,28 @@ export default function ArtworkDetailsPage() {
   };
 
   const handleBuy = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) { router.push("/login"); return; }
-    setBuying(true);
-    setBuyMsg({ type: "", text: "" });
-    try {
-      const res = await fetch("http://localhost:5000/api/sales", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ artworkId: id })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setBuyMsg({ type: "success", text: "Artwork purchased successfully! Check your collection." });
-        checkPurchase(); // Refresh purchase status instantly
-      } else {
-        setBuyMsg({ type: "error", text: data.message || "Purchase failed." });
-      }
-    } catch (err) {
-      setBuyMsg({ type: "error", text: "Could not connect to server." });
-    } finally {
-      setBuying(false);
+  const token = localStorage.getItem("token");
+  if (!token) { router.push("/login"); return; }
+  setBuying(true);
+  setBuyMsg({ type: "", text: "" });
+  try {
+    const res = await fetch("http://localhost:5000/api/payments/artwork", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ artworkId: id })
+    });
+    const data = await res.json();
+    if (res.ok && data.url) {
+      window.location.href = data.url; // Redirect to Stripe Checkout
+    } else {
+      setBuyMsg({ type: "error", text: data.message || "Failed to start checkout." });
     }
-  };
+  } catch (err) {
+    setBuyMsg({ type: "error", text: "Could not connect to server." });
+  } finally {
+    setBuying(false);
+  }
+};
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this artwork? This cannot be undone.")) return;

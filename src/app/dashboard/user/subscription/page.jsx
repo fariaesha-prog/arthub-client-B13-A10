@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const TIERS = [
   {
@@ -38,17 +39,32 @@ const TIERS = [
   }
 ];
 
+const router = useRouter();
+
 export default function SubscriptionPage() {
   const [loading, setLoading] = useState(null);
-
-  const handleUpgrade = (tierName) => {
-    setLoading(tierName);
-    // Stripe integration will go here later
-    setTimeout(() => {
-      alert(`Stripe payment for ${tierName} plan coming soon!`);
-      setLoading(null);
-    }, 500);
-  };
+const handleUpgrade = async (tierName) => {
+  const token = localStorage.getItem("token");
+  if (!token) { router.push("/login"); return; }
+  setLoading(tierName);
+  try {
+    const res = await fetch("http://localhost:5000/api/payments/subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ tier: tierName.toLowerCase() })
+    });
+    const data = await res.json();
+    if (res.ok && data.url) {
+      window.location.href = data.url;
+    } else {
+      alert(data.message || "Failed to start checkout.");
+    }
+  } catch (err) {
+    alert("Could not connect to server.");
+  } finally {
+    setLoading(null);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#0B0E14] text-white p-8 lg:p-12 space-y-8">
