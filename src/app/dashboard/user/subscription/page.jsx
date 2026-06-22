@@ -49,7 +49,7 @@ const handleUpgrade = async (tierName) => {
   if (!token) { router.push("/login"); return; }
   setLoading(tierName);
   try {
-    const res = await fetch("http://localhost:5000/api/payments/subscription", {
+    const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/payments/subscription", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
       body: JSON.stringify({ tier: tierName.toLowerCase() })

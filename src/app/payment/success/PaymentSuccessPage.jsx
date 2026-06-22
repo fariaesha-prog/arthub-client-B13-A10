@@ -21,7 +21,7 @@ export default function PaymentSuccessPage() {
     const verifyPayment = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/payments/verify", {
+        const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/payments/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify({ sessionId, type })

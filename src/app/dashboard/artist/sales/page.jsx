@@ -12,7 +12,7 @@ export default function ArtistSalesPage() {
     const fetchSales = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/sales/artist", {
+        const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/sales/artist", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();

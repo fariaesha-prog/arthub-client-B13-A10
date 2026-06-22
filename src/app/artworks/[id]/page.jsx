@@ -37,7 +37,7 @@ export default function ArtworkDetailsPage() {
 
   const fetchArtwork = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/artworks/${id}`);
+      const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/artworks/${id}`);
       if (res.status === 404) { setNotFound(true); return; }
       const data = await res.json();
       setArtwork(data);
@@ -54,7 +54,7 @@ export default function ArtworkDetailsPage() {
   setBuying(true);
   setBuyMsg({ type: "", text: "" });
   try {
-    const res = await fetch("http://localhost:5000/api/payments/artwork", {
+    const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/payments/artwork", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
       body: JSON.stringify({ artworkId: id })
@@ -77,7 +77,7 @@ export default function ArtworkDetailsPage() {
     setDeleting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/artworks/${id}`, {
+      const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/artworks/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -95,7 +95,7 @@ export default function ArtworkDetailsPage() {
 
   const fetchComments = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/artworks/${id}/comments`);
+      const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/artworks/${id}/comments`);
       const data = await res.json();
       setComments(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -109,7 +109,7 @@ export default function ArtworkDetailsPage() {
     const token = localStorage.getItem("token");
     if (!token || !user) return;
     try {
-      const res = await fetch("http://localhost:5000/api/sales/user", {
+      const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/sales/user", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const purchases = await res.json();
@@ -126,7 +126,7 @@ export default function ArtworkDetailsPage() {
     setCommentMsg({ type: "", text: "" });
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/artworks/${id}/comments`, {
+      const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/artworks/${id}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ comment: newComment })
@@ -150,7 +150,7 @@ export default function ArtworkDetailsPage() {
     if (!editText.trim()) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/comments/${commentId}`, {
+      const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/comments/${commentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ comment: editText })
@@ -170,7 +170,7 @@ export default function ArtworkDetailsPage() {
     if (!confirm("Delete this comment?")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/comments/${commentId}`, {
+      const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/comments/${commentId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });

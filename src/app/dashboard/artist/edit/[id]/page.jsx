@@ -15,7 +15,7 @@ export default function EditArtworkPage() {
   useEffect(() => {
     const fetchArtwork = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/artworks/${id}`);
+        const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/artworks/${id}`);
         const data = await res.json();
         setInitialData(data);
       } catch (err) {
@@ -35,7 +35,7 @@ export default function EditArtworkPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/artworks/${id}`, {
+      const res = await fetch(`http://https://arthub-server-9t9m.onrender.com/api/artworks/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

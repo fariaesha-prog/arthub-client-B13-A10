@@ -62,7 +62,7 @@ export default function ArtistSettingsPage() {
     setProfileMsg({ type: "", text: "" });
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/auth/profile", {
+      const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/auth/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(profile)
@@ -98,7 +98,7 @@ export default function ArtistSettingsPage() {
     setPasswordLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/auth/change-password", {
+      const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/auth/change-password", {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ currentPassword: passwords.currentPassword, newPassword: passwords.newPassword })

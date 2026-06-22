@@ -23,7 +23,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const BACKEND_URL = "http://localhost:5000";
+  const BACKEND_URL = "http://https://arthub-server-9t9m.onrender.com";
   const GOOGLE_CLIENT_ID = "1008811192795-b75hk9kdaipvgglsknmebu50jlofsslt.apps.googleusercontent.com";
 
   // 🔥 Callback function for when a user selects their Google account

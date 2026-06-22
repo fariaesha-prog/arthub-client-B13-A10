@@ -12,7 +12,7 @@ export default function AdminTransactionsPage() {
     const fetchTransactions = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/admin/transactions", {
+        const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/admin/transactions", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();

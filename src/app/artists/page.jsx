@@ -13,7 +13,7 @@ export default function ArtistsPage() {
   useEffect(() => {
     const fetchArtists = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/artists");
+        const res = await fetch("http://https://arthub-server-9t9m.onrender.com/api/artists");
         const data = await res.json();
         setArtists(Array.isArray(data) ? data : []);
       } catch (err) {

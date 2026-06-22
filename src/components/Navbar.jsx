@@ -68,7 +68,7 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const BACKEND_URL = "http://localhost:5000";
+  const BACKEND_URL = "http://https://arthub-server-9t9m.onrender.com";
   const userRole = user?.role;
 
   useEffect(() => {
