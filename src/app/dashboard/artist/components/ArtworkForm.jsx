@@ -159,27 +159,21 @@ export default function ArtworkForm({ initialData = null, onSubmit, isSubmitting
         </div>
 
         {/* Category */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-400">Category</label>
-          <Select placeholder={category} className="w-full">
-            <Select.Trigger className="bg-white/[0.02] border border-white/5 rounded-xl h-10 px-3 text-xs text-white flex items-center justify-between w-full hover:bg-white/[0.04]">
-              <Select.Value className="text-xs text-white" />
-            </Select.Trigger>
-            <Select.Popover className="bg-[#111625] border border-white/10 text-white rounded-xl shadow-xl">
-              <ListBox
-                selectedKeys={new Set([category])}
-                onSelectionChange={(keys) => setCategory(Array.from(keys)[0])}
-                selectionMode="single"
-              >
-                {CATEGORIES.map((cat) => (
-                  <ListBox.Item key={cat} id={cat} textValue={cat} className="text-xs text-gray-300 px-3 py-2 cursor-pointer hover:bg-white/5 hover:text-white rounded-lg transition-colors">
-                    {cat}
-                  </ListBox.Item>
-                ))}
-              </ListBox>
-            </Select.Popover>
-          </Select>
-        </div>
+        {/* Category */}
+<div className="space-y-1.5">
+  <label className="text-xs font-medium text-gray-400">Category</label>
+  <select
+    value={category}
+    onChange={(e) => setCategory(e.target.value)}
+    className="w-full bg-white/[0.02] border border-white/5 rounded-xl h-10 px-3 text-xs text-white hover:bg-white/[0.04] outline-none cursor-pointer"
+  >
+    {CATEGORIES.map((cat) => (
+      <option key={cat} value={cat} className="bg-[#111625] text-white">
+        {cat}
+      </option>
+    ))}
+  </select>
+</div>
       </div>
 
       {/* Action Button */}
